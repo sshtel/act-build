@@ -89,7 +89,7 @@ module.exports = function (gulp) {
   }
 
   function launchApp(params, exitWithCode) {
-    var spawn = require('child_process').spawn;
+    var spawn = child_process.spawn;
     app = spawn('node', params);
     app.stdout.on('data', function (data) {
       process.stdout.write(data.toString());
@@ -111,17 +111,7 @@ module.exports = function (gulp) {
       process.exit();
     }, 500);
   }
-
-  function local() {
-    compileTypescript(function (err) {
-      if (err) {
-        console.error('\tfailed to compile. waiting for fix...');
-        return;
-      }
-      debug();
-    });
-  }
-
+  
   function watch() {
     gulp.watch(sources, gulp.series('scripts'));
   }
@@ -137,5 +127,4 @@ module.exports = function (gulp) {
   gulp.task('start', start);
   gulp.task('debug', debug);
   gulp.task('watch', watch);
-  gulp.task('local', gulp.parallel('watch', 'staticdata'), local);
 }

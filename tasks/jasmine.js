@@ -6,8 +6,17 @@ module.exports = function (gulp) {
   const del = require('del');
   const glob = require('glob');
 
+  var sources = ['./src/**/*.ts'];
+
   function clean(done) {
     return del(['./dist', './node_modules', './coverage'], done);
+  }
+
+  function test() {
+    return gulp.src(`./dist/spec/*[Ss]pec.js`).pipe(jasmine({
+      // verbose: true,
+      includeStackTrace: true
+    }));
   }
 
   function registerJasmineTasks() {
@@ -21,17 +30,18 @@ module.exports = function (gulp) {
 
   function jasmineTask(name) {
     var buildAndTest = 'run-' + name;
-    gulp.task(buildAndTest, gulp.series(['build'], function () {
+    gulp.task(buildAndTest, gulp.series(['build'], function testSpec() {
       return gulp.src('./dist/spec/' + name + '.js')
         .pipe(jasmine());
     }));
 
-    gulp.task(name, gulp.series([buildAndTest], function () {
-      gulp.watch(sources, [buildAndTest]);
+    gulp.task(name, gulp.series([buildAndTest], function watchTypescriptsforSpec() {
+      gulp.watch(sources, gulp.series([buildAndTest]));
     }));
   }
 
   gulp.task('clean', clean);
+  gulp.task('test', gulp.series('build', test));
 
   registerJasmineTasks();
 }
