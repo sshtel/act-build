@@ -1,12 +1,12 @@
 'use strict';
 
-module.exports = function (gulp) {
+module.exports = function (gulp, command, args) {
   require('./build')(gulp);
   const jasmine = require('gulp-jasmine');
   const del = require('del');
   const glob = require('glob');
 
-  var sources = ['./src/**/*.ts'];
+  const sources = ['./src/**/*.ts'];
 
   function clean(done) {
     return del(['./dist', './node_modules', './coverage'], done);
@@ -14,9 +14,12 @@ module.exports = function (gulp) {
 
   function test(fileName = '*[Ss]pec') {
     return function testJasmine() {
-      return gulp.src(`./dist/spec/${fileName}.js`).pipe(jasmine({
+      return gulp.src(`./dist/spec/${fileName}*.js`).pipe(jasmine({
         // verbose: true,
         includeStackTrace: true,
+        helpers: [
+          "helpers/**/*.js"
+        ],
         config: {
           random: false
         }
@@ -35,15 +38,14 @@ module.exports = function (gulp) {
 
   function jasmineTask(name) {
     var buildAndTest = 'run-' + name;
-
-    gulp.task(buildAndTest, gulp.series(['build'], test(name)));
-    gulp.task(name, gulp.series(build, test(name), function watchTypescriptsforSpec() {
-      gulp.watch(sources, gulp.series(build, test(name)));
+    gulp.task(name, gulp.series('compile', test(name), function watchTypescriptsforSpec() {
+      gulp.watch(sources, gulp.series('compile', test(name)));
     }));
   }
 
   gulp.task('clean', clean);
   gulp.task('test', gulp.series('build', test()));
+  gulp.task('default', gulp.series('test'));
 
   registerJasmineTasks();
 }

@@ -13,7 +13,15 @@ module.exports = function (gulp) {
   }
 
   function istanbulTask() {
-    const stream = gulp.src(['dist/spec/*.js']).pipe(jasmine());
+    const stream = gulp.src(['dist/spec/*.js']).pipe(jasmine({
+      includeStackTrace: true,
+      helpers: [
+        "helpers/**/*.js"
+      ],
+      config: {
+        random: false
+      }
+    }));
     // https://github.com/gulpjs/gulp/issues/358 or gulp-plumber
     stream.on('error', (e) => {
       console.error('error on running coverage: ', e);
@@ -32,7 +40,5 @@ module.exports = function (gulp) {
       }));
   }
 
-  gulp.task('pre-coverage', preIstanbulTask);
-  gulp.task('coverage-js', istanbulTask);
-  gulp.task('coverage', gulp.series('build', 'pre-coverage', 'coverage-js', remapIstanbulTask));
+  gulp.task('coverage', gulp.series('build', preIstanbulTask, istanbulTask, remapIstanbulTask));
 }
