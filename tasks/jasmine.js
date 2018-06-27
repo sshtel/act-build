@@ -12,11 +12,16 @@ module.exports = function (gulp) {
     return del(['./dist', './node_modules', './coverage'], done);
   }
 
-  function test() {
-    return gulp.src(`./dist/spec/*[Ss]pec.js`).pipe(jasmine({
-      // verbose: true,
-      includeStackTrace: true
-    }));
+  function test(fileName = '*[Ss]pec') {
+    return function testJasmine() {
+      return gulp.src(`./dist/spec/${fileName}.js`).pipe(jasmine({
+        // verbose: true,
+        includeStackTrace: true,
+        config: {
+          random: false
+        }
+      }));
+    }
   }
 
   function registerJasmineTasks() {
@@ -30,18 +35,15 @@ module.exports = function (gulp) {
 
   function jasmineTask(name) {
     var buildAndTest = 'run-' + name;
-    gulp.task(buildAndTest, gulp.series(['build'], function testSpec() {
-      return gulp.src('./dist/spec/' + name + '.js')
-        .pipe(jasmine());
-    }));
 
-    gulp.task(name, gulp.series([buildAndTest], function watchTypescriptsforSpec() {
-      gulp.watch(sources, gulp.series([buildAndTest]));
+    gulp.task(buildAndTest, gulp.series(['build'], test(name)));
+    gulp.task(name, gulp.series(build, test(name), function watchTypescriptsforSpec() {
+      gulp.watch(sources, gulp.series(build, test(name)));
     }));
   }
 
   gulp.task('clean', clean);
-  gulp.task('test', gulp.series('build', test));
+  gulp.task('test', gulp.series('build', test()));
 
   registerJasmineTasks();
 }

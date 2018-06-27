@@ -1,10 +1,9 @@
 {
   "name": "island-build",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Build support module for island development",
   "main": "index.js",
   "scripts": {
-    "ttt": "gulp ttt",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
