@@ -41,7 +41,7 @@ module.exports = function (gulp) {
 
   function executeIslandDocGen(options) {
     if (process.env.npm_lifecycle_event && process.env.npm_lifecycle_event !== 'build') {
-      return function (done) {
+      return function ignore_env_doc(done) {
         console.warn(`ENV_DOCUMENTATION step ignored. 'npm run build' will run this`);
         return done();
       };
