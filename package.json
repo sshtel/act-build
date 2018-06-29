@@ -1,10 +1,9 @@
 {
   "name": "island-build",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Build support module for island development",
   "main": "index.js",
   "scripts": {
-    "ttt": "gulp ttt",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,11 +17,10 @@
     "gulp": "^4.0.0",
     "gulp-istanbul": "^1.1.3",
     "gulp-jasmine": "^4.0.0",
-    "gulp-plumber": "^1.1.0",
+    "gulp-nodemon": "^2.2.1",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-tslint": "^8.1.3",
     "gulp-typescript": "^4.0.2",
-    "inquirer": "^3.0.6",
     "island-doc": "next",
     "jasmine-spec-reporter": "^4.2.1",
     "remap-istanbul": "^0.11.1",
