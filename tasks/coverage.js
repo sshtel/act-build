@@ -5,6 +5,7 @@ module.exports = function (gulp) {
   const jasmine = require('gulp-jasmine');
   const istanbul = require('gulp-istanbul');
   const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+  const replace = require('gulp-replace');
 
   function preIstanbulTask() {
     return gulp.src(['dist/**/*.js', '!dist/spec/**/*.js'])
@@ -16,7 +17,7 @@ module.exports = function (gulp) {
     const stream = gulp.src(['dist/spec/*.js']).pipe(jasmine({
       includeStackTrace: true,
       helpers: [
-        "helpers/**/*.js"
+        "spec/helpers/**/*.js"
       ],
       config: {
         random: false
@@ -35,10 +36,36 @@ module.exports = function (gulp) {
       .pipe(remapIstanbul({
         reports: {
           html: 'coverage/remap-report',
-          'lcovonly': 'coverage/lcov-remap.info'
+          lcovonly: 'coverage/lcov-remap.info'
         }
       }));
   }
 
-  gulp.task('coverage', gulp.series('build', preIstanbulTask, istanbulTask, remapIstanbulTask));
+  function replacePath() {
+    return gulp.src(['coverage/lcov-remap.info'])
+      .pipe(replace('/dist/', '/src/'))
+      .pipe(gulp.dest('coverage/'));
+  }
+
+  function curl(done) {
+    const packageJson = require(`${process.cwd()}/package.json`);
+    const fs = require('fs');
+    const contents = fs.readFileSync('coverage/remap-report/index.html', 'utf8');
+    const linecoverage = contents.match(/([0-9\/\.]{2,5}).*[\n]+.*Lines/);
+
+    if (!linecoverage) return done();
+
+    const util = require('util');
+    const exec = require('child_process').execSync;
+
+    const command = `curl -H 'Content-type: application/json' -XPOST -d '{"indexname": "island-coverage",
+    "islandname": "${packageJson.name}", "line": ${linecoverage[1]}}' 10.88.16.30:5301`;
+
+    exec(command);
+
+    return done();
+  }
+
+  gulp.task('coverage', gulp.series('build', preIstanbulTask, istanbulTask, remapIstanbulTask, replacePath));
+  gulp.task('coverage-logstash', gulp.series('coverage', curl));
 }

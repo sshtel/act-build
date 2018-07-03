@@ -15,7 +15,26 @@ module.exports = function (gulp) {
     return gulp.src(sources, { since: gulp.lastRun('compile') })
       .pipe(sourcemaps.init())
       .pipe(tsProject())
-      .pipe(sourcemaps.write())
+      .pipe(sourcemaps.mapSources((sourcePath, file) => {
+        const length = sourcePath.split('/').length;
+        sourcePath = 'src/' + sourcePath;
+        for (var i = 0; i < length; ++i) {
+          sourcePath = '../' + sourcePath;
+        }
+        return sourcePath;
+      }))
+      // .pipe(sourcemaps.write('', {
+      //   //destPath: 'dist',
+      //   includeContent: false,
+      //   sourceRoot: function (file) {
+      //     return 0;
+      //   },
+      //   sourceMappingURL: function (file) {
+      //     return `${file.relative.split('/').pop()}.map`;
+      //   }
+      // }))
+      .pipe(sourcemaps.write({
+      }))
       .pipe(gulp.dest('dist'));
   }
 

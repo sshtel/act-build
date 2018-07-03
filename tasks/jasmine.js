@@ -18,7 +18,7 @@ module.exports = function (gulp, command, args) {
         // verbose: true,
         includeStackTrace: true,
         helpers: [
-          "helpers/**/*.js"
+          "spec/helpers/**/*.js"
         ],
         config: {
           random: false

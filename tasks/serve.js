@@ -8,7 +8,7 @@ module.exports = function (gulp) {
     var script = nodemon({
       script: 'dist/app.js',
       ext: 'ts, js, json',
-      watch: sources,
+      watch: ['src'],
       tasks: ['test'],
       verbose: true,
       legacyWatch: true,
