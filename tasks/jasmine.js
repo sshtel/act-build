@@ -14,12 +14,16 @@ module.exports = function (gulp, command, args) {
 
   function test(fileName = '*[Ss]pec') {
     return function testJasmine() {
+      const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+
       return gulp.src(`./dist/spec/${fileName}*.js`).pipe(jasmine({
         // verbose: true,
         includeStackTrace: true,
-        helpers: [
-          "spec/helpers/**/*.js"
-        ],
+        reporter: new SpecReporter({  // add jasmine-spec-reporter
+          spec: {
+            displayPending: true
+          }
+        }),
         config: {
           random: false
         }
@@ -48,4 +52,6 @@ module.exports = function (gulp, command, args) {
   gulp.task('default', gulp.series('test'));
 
   registerJasmineTasks();
+
+  return { test };
 }

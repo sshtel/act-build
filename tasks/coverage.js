@@ -2,7 +2,7 @@
 
 module.exports = function (gulp) {
   require('./build')(gulp);
-  const jasmine = require('gulp-jasmine');
+  const g_jasmine = require('./jasmine')(gulp);
   const istanbul = require('gulp-istanbul');
   const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
   const replace = require('gulp-replace');
@@ -14,15 +14,7 @@ module.exports = function (gulp) {
   }
 
   function istanbulTask() {
-    const stream = gulp.src(['dist/spec/*.js']).pipe(jasmine({
-      includeStackTrace: true,
-      helpers: [
-        "spec/helpers/**/*.js"
-      ],
-      config: {
-        random: false
-      }
-    }));
+    const stream = g_jasmine.test()();
     // https://github.com/gulpjs/gulp/issues/358 or gulp-plumber
     stream.on('error', (e) => {
       console.error('error on running coverage: ', e);

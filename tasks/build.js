@@ -15,6 +15,7 @@ module.exports = function (gulp) {
     return gulp.src(sources, { since: gulp.lastRun('compile') })
       .pipe(sourcemaps.init())
       .pipe(tsProject())
+      .on('error', () => { process.exit(1); })
       .pipe(sourcemaps.mapSources((sourcePath, file) => {
         const length = sourcePath.split('/').length;
         sourcePath = 'src/' + sourcePath;
