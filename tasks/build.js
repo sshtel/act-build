@@ -9,8 +9,17 @@ module.exports = function (gulp) {
   const tsProject = ts ? ts.createProject('tsconfig.json') : undefined;
   const sources = ['./src/**/*.ts'];
 
+  const spawnSync = require('child_process').spawnSync;
+  const npmlist = JSON.parse(spawnSync('npm', ['list', '--depth=0', '--json']).stdout.toString());
+
   // for incremental build test
   function compileWithGulpTypescript() {
+    console.log('============= Compile Versions of Island Packs ===========');
+    console.log(`island: ${npmlist.dependencies.island.version}`);
+    console.log(`island-base: ${npmlist.dependencies['island-base'].version}`);
+    console.log(`island-keeper: ${npmlist.dependencies['island-keeper'].version}`);
+    console.log(`distlock: ${npmlist.dependencies.distlock.version}`);
+
     // if DEBUG=*, gulp-sourcemap generates many annoying logs;
     return gulp.src(sources, { since: gulp.lastRun('compile') })
       .pipe(sourcemaps.init())
