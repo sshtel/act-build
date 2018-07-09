@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = function (gulp) {
-  require('./build')(gulp);
-  const g_jasmine = require('./jasmine')(gulp);
+module.exports = function (options) {
+  const gulp = options.gulp;
+  const g_jasmine = require('./jasmine')(options);
   const istanbul = require('gulp-istanbul');
   const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
   const replace = require('gulp-replace');
@@ -14,7 +14,7 @@ module.exports = function (gulp) {
   }
 
   function istanbulTask() {
-    const stream = g_jasmine.test()();
+    const stream = g_jasmine.funcs.test()();
     // https://github.com/gulpjs/gulp/issues/358 or gulp-plumber
     stream.on('error', (e) => {
       console.error('error on running coverage: ', e);
@@ -39,7 +39,7 @@ module.exports = function (gulp) {
       .pipe(gulp.dest('coverage/'));
   }
 
-  function curl(done) {
+  function curlToKibana(done) {
     const packageJson = require(`${process.cwd()}/package.json`);
     const fs = require('fs');
     const contents = fs.readFileSync('coverage/remap-report/index.html', 'utf8');
@@ -59,5 +59,19 @@ module.exports = function (gulp) {
   }
 
   gulp.task('coverage', gulp.series('build', preIstanbulTask, istanbulTask, remapIstanbulTask, replacePath));
-  gulp.task('coverage-logstash', gulp.series('coverage', curl));
+  gulp.task('coverage-logstash', gulp.series('coverage', curlToKibana));
+
+  return {
+    funcs: {
+      preIstanbulTask,
+      istanbulTask,
+      remapIstanbulTask,
+      replacePath,
+      curlToKibana
+    },
+    tasks: [
+      'coverage',
+      'coverage-logstash'
+    ]
+  };
 }

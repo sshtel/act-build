@@ -1,10 +1,11 @@
 'use strict';
 
-module.exports = function (gulp) {
-  const nodemon = require('gulp-nodemon');
-  const sources = ['./src/**/*.ts'];
+module.exports = function (options) {
+  require('./build')(options);
+  const gulp = options.gulp;
 
   function launchApp() {
+    const nodemon = require('gulp-nodemon');
     var script = nodemon({
       script: 'dist/app.js',
       ext: 'ts, js, json',
@@ -24,7 +25,7 @@ module.exports = function (gulp) {
   }
 
   function watch() {
-    gulp.watch(sources, gulp.series('build', 'start'));
+    gulp.watch(options.sources, gulp.series('build', 'start'));
   }
 
   async function sleep() {
@@ -37,4 +38,17 @@ module.exports = function (gulp) {
   gulp.task('start', gulp.series('build', launchApp));
   gulp.task('watch', watch);
   gulp.task('sleep', sleep);
+
+   return {
+    funcs: {
+      launchApp,
+      watch,
+      sleep
+    },
+    tasks: [
+      'start',
+      'watch',
+      'sleep'
+    ]
+  };
 }

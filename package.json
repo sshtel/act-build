@@ -1,6 +1,6 @@
 {
   "name": "island-build",
-  "version": "0.0.7",
+  "version": "0.0.11",
   "description": "Build support module for island development",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "gulp-jasmine": "^4.0.0",
     "gulp-nodemon": "^2.2.1",
     "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.0",
     "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-tslint": "^8.1.3",

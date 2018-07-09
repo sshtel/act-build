@@ -1,57 +1,67 @@
 'use strict';
 
-module.exports = function (gulp, command, args) {
-  require('./build')(gulp);
-  const jasmine = require('gulp-jasmine');
-  const del = require('del');
-  const glob = require('glob');
-
-  const sources = ['./src/**/*.ts'];
+module.exports = function (options) {
+  require('./build')(options);
+  const gulp = options.gulp;
 
   function clean(done) {
+    const del = require('del');
     return del(['./dist', './node_modules', './coverage'], done);
   }
 
   function test(fileName = '*[Ss]pec') {
     return function testJasmine() {
+      const jasmine = require('gulp-jasmine');
       const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
-      return gulp.src(`./dist/spec/${fileName}*.js`).pipe(jasmine({
-        // verbose: true,
-        includeStackTrace: true,
-        reporter: new SpecReporter({  // add jasmine-spec-reporter
-          spec: {
-            displayPending: true
+      for (const key in options.envContents) {
+        if (process.env[key] !== undefined) continue;
+        const value = options.envContents[key];
+        process.env[key] = value;
+      }
+
+      return gulp.src(`./dist/spec/${fileName}.js`)
+        .pipe(jasmine({
+          // verbose: true,
+          includeStackTrace: true,
+          reporter: new SpecReporter({  // add jasmine-spec-reporter
+            spec: {
+              displayPending: true
+            }
+          }),
+          config: {
+            random: false
           }
-        }),
-        config: {
-          random: false
-        }
-      }));
+        }));
     }
   }
 
   function registerJasmineTasks() {
-    var files = glob.sync('./dist/spec/*.js');
+    const glob = require('glob');
+    const files = glob.sync('./dist/spec/*.js');
     files.forEach(function (name) {
       // ./dist/spec/abc.spec.js => abc.spec
-      var taskName = name.match(/^.*\/(.*)\.js$/)[1];
-      jasmineTask(taskName);
+      const taskName = name.match(/^.*\/(.*)\.js$/)[1];
+      gulp.task(taskName, function watchTypescriptsforSpec(done) {
+        gulp.watch(options.sources, { ignoreInitial: false }, gulp.series('compile', test(taskName)));
+      });
     });
-  }
-
-  function jasmineTask(name) {
-    var buildAndTest = 'run-' + name;
-    gulp.task(name, gulp.series('compile', test(name), function watchTypescriptsforSpec() {
-      gulp.watch(sources, gulp.series('compile', test(name)));
-    }));
   }
 
   gulp.task('clean', clean);
   gulp.task('test', gulp.series('build', test()));
+  registerJasmineTasks();
   gulp.task('default', gulp.series('test'));
 
-  registerJasmineTasks();
-
-  return { test };
+  return {
+    funcs: {
+      test,
+      clean
+    },
+    tasks: [
+      'clean',
+      'test',
+      'default'
+    ]
+  };
 }
