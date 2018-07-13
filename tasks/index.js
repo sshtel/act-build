@@ -12,9 +12,9 @@ module.exports = function (gulp) {
   function _loadEnvConfig() {
     const fs = require('fs');
     let contents;
-    if (fs.existsSync('./config.local')) {
+    if (fs.existsSync('./config.local' && fs.lstatSync('./config.local').isFile())) {
       contents = fs.readFileSync('./config.local').toString().split('\n');
-    } else if (fs.existsSync('./config')) {
+    } else if (fs.existsSync('./config') && fs.lstatSync('./config').isFile()) {
       contents = fs.readFileSync('./config').toString().split('\n');
     }
     if (!contents) {
