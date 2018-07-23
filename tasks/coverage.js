@@ -4,8 +4,6 @@ module.exports = function (options) {
   const gulp = options.gulp;
   const g_jasmine = require('./jasmine')(options);
   const istanbul = require('gulp-istanbul');
-  const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
-  const replace = require('gulp-replace');
 
   function preIstanbulTask() {
     return gulp.src(['dist/**/*.js', '!dist/spec/**/*.js'])
@@ -24,6 +22,7 @@ module.exports = function (options) {
   }
 
   function remapIstanbulTask() {
+    const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
     return gulp.src('coverage/coverage-final.json')
       .pipe(remapIstanbul({
         reports: {
@@ -34,6 +33,7 @@ module.exports = function (options) {
   }
 
   function replacePath() {
+    const replace = require('gulp-replace');
     return gulp.src(['coverage/lcov-remap.info'])
       .pipe(replace('/dist/', '/src/'))
       .pipe(gulp.dest('coverage/'));
@@ -43,23 +43,26 @@ module.exports = function (options) {
     const packageJson = require(`${process.cwd()}/package.json`);
     const fs = require('fs');
     const contents = fs.readFileSync('coverage/remap-report/index.html', 'utf8');
-    const linecoverage = contents.match(/([0-9\/\.]{2,5}).*[\n]+.*Lines/);
+    const linecoverageMatched = contents.match(/([0-9\/\.]{2,5}).*[\n]+.*Lines.*[\n]+.*([0-9]{1,3}\/[0-9]{1,3})/);
 
-    if (!linecoverage) return done();
+    if (!linecoverageMatched) return done();
+
+    const linecoverage = linecoverageMatched[2] === '0/0' ? '0' : linecoverageMatched[1];
 
     const util = require('util');
     const exec = require('child_process').execSync;
 
     const command = `curl -H 'Content-type: application/json' -XPOST -d '{"indexname": "island-coverage",
-    "islandname": "${packageJson.name}", "line": ${linecoverage[1]}}' 10.88.16.30:5301`;
+    "islandname": "${packageJson.name}", "line": ${linecoverage}}' 10.88.16.30:5301`;
 
     exec(command);
 
     return done();
   }
 
-  gulp.task('coverage', gulp.series('build', preIstanbulTask, istanbulTask, remapIstanbulTask, replacePath));
-  gulp.task('coverage-logstash', gulp.series('coverage', curlToKibana));
+  gulp.task('coverage-only', gulp.series(preIstanbulTask, istanbulTask, remapIstanbulTask, replacePath));
+  gulp.task('coverage', gulp.series('build', 'coverage-only'));
+  gulp.task('coverage-logstash', gulp.series('build', 'coverage-only', curlToKibana));
 
   return {
     funcs: {

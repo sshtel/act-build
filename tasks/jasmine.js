@@ -13,6 +13,7 @@ module.exports = function (options) {
     return function testJasmine() {
       const jasmine = require('gulp-jasmine');
       const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+      const glob = require('glob');
 
       for (const key in options.envContents) {
         if (process.env[key] !== undefined) continue;
@@ -20,7 +21,14 @@ module.exports = function (options) {
         process.env[key] = value;
       }
 
-      return gulp.src(`./dist/spec/${fileName}.js`)
+      const pattern = `./dist/spec/${fileName}.js`;
+      const files = glob.sync(pattern);
+      if (files.length === 0) {
+        console.warn(`There is no .spec files. Test step ignored.`);
+        return gulp.src('empty', { allowEmpty: true });
+      }
+
+      return gulp.src(files)
         .pipe(jasmine({
           // verbose: true,
           includeStackTrace: true,

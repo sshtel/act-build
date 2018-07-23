@@ -86,7 +86,7 @@ module.exports = (options) => {
 
   function staticdata() {
     return gulp.src(['./src/staticdata/*'])
-      .pipe(gulp.dest('./dist/staticdata/', { mode: '0644' }))
+      .pipe(gulp.dest('./dist/staticdata/', { mode: '0644' }));
   }
 
   function executeIslandDocGen(options) {
