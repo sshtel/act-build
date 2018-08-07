@@ -13,6 +13,10 @@ compile typescript
 run jasmine dist/spec/*.spec.js
 create coverage reports with istanbul
 
+## gulp integration (gulp integration-test)
+compile typescript
+run jasmine dist/integration/*.spec.js
+
 ## gulp test
 compile typescript
 run jasmine dist/spec/*.spec.js

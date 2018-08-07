@@ -9,7 +9,7 @@ module.exports = function (options) {
     return del(['./dist', './node_modules', './coverage'], done);
   }
 
-  function test(fileName = '*[Ss]pec') {
+  function test(fileName = '*[Ss]pec', specPath = './dist/spec/') {
     return function testJasmine() {
       const jasmine = require('gulp-jasmine');
       const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
@@ -21,10 +21,10 @@ module.exports = function (options) {
         process.env[key] = value;
       }
 
-      const pattern = `./dist/spec/${fileName}.js`;
+      const pattern = `${specPath}${fileName}.js`;
       const files = glob.sync(pattern);
       if (files.length === 0) {
-        console.warn(`There is no .spec files. Test step ignored.`);
+        console.warn(`There is no .spec files.\nTest step ignored.\nPattern: ${pattern}`);
         return gulp.src('empty', { allowEmpty: true });
       }
 
@@ -45,8 +45,9 @@ module.exports = function (options) {
   }
 
   function registerJasmineTasks() {
+    const specPath = './dist/spec/';
     const glob = require('glob');
-    const files = glob.sync('./dist/spec/*.js');
+    const files = glob.sync(`${specPath}*.js`);
     files.forEach(function (name) {
       // ./dist/spec/abc.spec.js => abc.spec
       const taskName = name.match(/^.*\/(.*)\.js$/)[1];
@@ -57,9 +58,15 @@ module.exports = function (options) {
   }
 
   gulp.task('clean', clean);
+
+  gulp.task('integration', gulp.series('build', test('*[Ss]pec', './dist/integration/')));
+  gulp.task('integration-test', gulp.series('integration'));
+
   gulp.task('test', gulp.series('build', test()));
-  registerJasmineTasks();
+  gulp.task('unit-test', gulp.series('test'));
   gulp.task('default', gulp.series('test'));
+
+  registerJasmineTasks();
 
   return {
     funcs: {
@@ -68,6 +75,7 @@ module.exports = function (options) {
     },
     tasks: [
       'clean',
+      'integration',
       'test',
       'default'
     ]
