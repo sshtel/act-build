@@ -62,6 +62,7 @@ module.exports = function (options) {
   gulp.task('integration', gulp.series('build', test('*[Ss]pec', './dist/integration/')));
   gulp.task('integration-test', gulp.series('integration'));
 
+  gulp.task('test-only', gulp.series(test()));
   gulp.task('test', gulp.series('build', test()));
   gulp.task('unit-test', gulp.series('test'));
   gulp.task('default', gulp.series('test'));

@@ -107,6 +107,7 @@ module.exports = (options) => {
 
   gulp.task('islandversion', showIslandVersions);
   gulp.task('compile', compileWithGulpTypescript);
+  gulp.task('doc', executeIslandDocGen());
   gulp.task('build', gulp.series(gulp.parallel(staticdata, doLint, executeIslandDocGen()), 'compile'));
 
   return {
@@ -120,6 +121,7 @@ module.exports = (options) => {
     tasks: [
       'islandversion',
       'compile',
+      'doc',
       'build'
     ]
   };
