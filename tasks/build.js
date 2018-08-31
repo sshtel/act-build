@@ -107,7 +107,7 @@ module.exports = (options) => {
   gulp.task('islandversion', showIslandVersions);
   gulp.task('compile', compileWithGulpTypescript);
   gulp.task('doc', executeIslandDocGen());
-  gulp.task('build', gulp.series(gulp.parallel(staticdata, doLint, executeIslandDocGen()), 'compile'));
+  gulp.task('build', gulp.series(gulp.parallel(staticdata, doLint), 'compile'));
 
   return {
     funcs: {
