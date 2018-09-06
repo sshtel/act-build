@@ -62,7 +62,7 @@ module.exports = function (options) {
 
   gulp.task('coverage-only', gulp.series(preIstanbulTask, istanbulTask, remapIstanbulTask, replacePath));
   gulp.task('coverage', gulp.series('build', 'coverage-only'));
-  gulp.task('coverage-logstash', gulp.series('build', 'coverage-only', curlToKibana));
+  gulp.task('coverage-logstash', gulp.series('build', 'doc', 'coverage-only', curlToKibana));
 
   return {
     funcs: {

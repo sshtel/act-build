@@ -1,6 +1,6 @@
 {
   "name": "island-build",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Build support module for island development",
   "main": "index.js",
   "scripts": {
