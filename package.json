@@ -1,8 +1,11 @@
 {
   "name": "island-build",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Build support module for island development",
   "main": "index.js",
+  "bin": {
+    "publish-public": "./bin/publish-public"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

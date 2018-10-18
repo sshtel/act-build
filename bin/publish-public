@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+function recent_remote_release() {
+  git branch --remote | grep -E 'release-[0-9]+.[0-9]+$' | sort -V | tail -1 | tr -d '[:space:]'
+}
+
+function recent_release() {
+  echo $(recent_remote_release) | rev | cut -d'/' -f1 | rev
+}
+
+function version_only() {
+  read stdin
+  echo "$stdin" | rev | cut -d'-' -f1 | rev
+}
+
+function publish() {
+  cd public
+  npm publish --tag $1 --access restricted || exit 1
+  cd ..
+}
+
+function package_version() {
+  npm version | head -1 | sed -n -E "s/^.*'([0-9.].*)'.*$/\1/p"
+}
+
+function current_branchname() {
+  git branch | grep \* | cut -d ' ' -f2
+}
+
+function bumpup() {
+  VERSION=$(package_version)
+  VERSION_NUMBER_ONLY=$(echo $VERSION | cut -d- -f1)
+  BRANCHNAME=$(current_branchname)
+  PUBLIC_VERSION=""
+  TIMESTAMP=$(date +"%s")
+  if [ "$BRANCHNAME" = "master" ]; then
+    PUBLIC_VERSION="$VERSION.$TIMESTAMP"
+  elif [[ "$BRANCHNAME" =~ ^release-[0-9.]+$ ]]; then
+    PUBLIC_VERSION="$VERSION"
+  else
+    PUBLIC_VERSION="$VERSION_NUMBER_ONLY-$BRANCHNAME.$TIMESTAMP"
+  fi
+  
+  PUBLIC_VERSION=$(echo $PUBLIC_VERSION | sed "s/_/-/g")
+  echo $PUBLIC_VERSION
+  
+  cd public
+  npm version --no-git-tag-version --allow-same-version -f "$PUBLIC_VERSION"
+  cd ..
+  git add public/package.json
+}
+
+DIFFS=$(git diff --staged --name-only)
+if echo $DIFFS | grep -q "public/"; then
+  bumpup
+  BRANCHNAME=$(current_branchname)
+  if [ $BRANCHNAME = "master" ]; then
+    publish next
+  elif [[ "$BRANCHNAME" =~ ^release-[0-9.]+$ ]]; then
+    RECENT_LOCAL=$(recent_release)
+    if [ $BRANCHNAME = $RECENT_LOCAL ]; then
+      publish latest
+    else
+      VERSION=$(echo $BRANCHNAME | version_only)
+      publish old-$VERSION
+    fi
+  else
+    publish dev-$BRANCHNAME
+  fi
+fi
+
