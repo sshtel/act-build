@@ -7,7 +7,9 @@ module.exports = function (options) {
 
   function preIstanbulTask() {
     return gulp.src(['dist/**/*.js', '!dist/spec/**/*.js'])
-      .pipe(istanbul())
+      .pipe(istanbul({
+        includeUntested: true
+      }))
       .pipe(istanbul.hookRequire());
   }
 
