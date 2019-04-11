@@ -1,5 +1,6 @@
 # island-build
-This project is for support features of building and testing island-platform-based applications
+This project is to support automated build and testing environment for usual nodejs applications.
+This is originated from island-build project.
 
 # Commands
 ## gulp clean
